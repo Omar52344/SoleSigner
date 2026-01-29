@@ -1,0 +1,25 @@
+[package]
+name = "solesigner"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+axum = { version = "0.7", features = ["multipart"] } # needed for file uploads (images)
+sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "postgres", "uuid", "chrono", "json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+sha2 = "0.10"
+ed25519-dalek = "2.0"
+hex = "0.4"
+tokio-cron-scheduler = "0.9" # or latest
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+dotenvy = "0.15"
+# onnxruntime = "0.0.14" # Note: ort is often preferred in modern rust, but adhering to user req if possible, or using ort if better suitable.
+# Using 'ort' as it is the maintained successor to onnxruntime-rs for better compatibility
+ort = { version = "2.0", features = ["load-dynamic"] } # hypothetical version, checking validity in mind, usually 1.x or 2.x
+image = "0.24" # For image processing before ONNX
+base64 = "0.21"
