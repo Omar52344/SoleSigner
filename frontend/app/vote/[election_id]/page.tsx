@@ -34,6 +34,7 @@ interface Election {
 
 export default function VotePage({ params }: { params: { election_id: string } }) {
     const { election_id } = params
+    const router = useRouter()
     const [step, setStep] = useState(1)
     const { toast } = useToast()
 

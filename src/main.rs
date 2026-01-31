@@ -27,9 +27,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("✅ Connected to Database");
 
     // 4. Run Migrations (Optional, simplifies setup)
-    sqlx::migrate!("./migrations").run(&pool).await?;
-
-    println!("✅ Migrations Applied");
+    // sqlx::migrate!("./migrations").run(&pool).await?;
+    // println!("✅ Migrations Applied");
 
     // 5. Start Scheduler
     let pool_for_scheduler = pool.clone();
@@ -40,7 +39,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("✅ Scheduler Started");
 
     // 6. Start API Server
-    let router = api::router(pool);
+    let cors = tower_http::cors::CorsLayer::new()
+        .allow_origin(tower_http::cors::Any)
+        .allow_methods(tower_http::cors::Any)
+        .allow_headers(tower_http::cors::Any);
+
+    let router = api::router(pool).layer(cors);
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     let listener = tokio::net::TcpListener::bind(addr).await?;
 

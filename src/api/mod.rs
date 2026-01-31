@@ -7,8 +7,8 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use sqlx::{PgPool, Row};
-use std::sync::Arc;
+use sqlx::PgPool;
+// use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::crypto;
@@ -113,7 +113,7 @@ async fn validate_identity(
 ) -> impl IntoResponse {
     // 1. Fetch election to get salt
     let election = match sqlx::query!(
-        "SELECT election_salt, status FROM elections WHERE id = $1",
+        "SELECT election_salt, status::text as status FROM elections WHERE id = $1",
         payload.election_id
     )
     .fetch_optional(&state.db)
@@ -154,7 +154,7 @@ async fn submit_vote(
 ) -> impl IntoResponse {
     // 1. Verify election status
     let election_result = sqlx::query!(
-        "SELECT status FROM elections WHERE id = $1",
+        "SELECT status::text as status FROM elections WHERE id = $1",
         payload.election_id
     )
     .fetch_optional(&state.db)
@@ -225,7 +225,7 @@ async fn get_election(
     State(state): State<AppState>,
 ) -> impl IntoResponse {
     let result = sqlx::query!(
-        "SELECT id, title, form_config, start_date, end_date, access_type, election_salt, status FROM elections WHERE id = $1",
+        "SELECT id, title, form_config, start_date, end_date, access_type::text as access_type, election_salt, status::text as status FROM elections WHERE id = $1",
         election_id
     )
     .fetch_optional(&state.db)
