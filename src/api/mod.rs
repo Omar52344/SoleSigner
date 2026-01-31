@@ -27,6 +27,8 @@ pub fn router(pool: PgPool) -> Router {
         .route("/elections", get(list_elections))
         .route("/elections/:id", get(get_election))
         .route("/elections/:id/stats", get(get_election_stats))
+        .route("/elections/:id/start", post(start_election))
+        .route("/elections/:id/close", post(close_election))
         .route(
             "/elections/:id/whitelist",
             get(get_whitelist).post(add_whitelist),
@@ -398,5 +400,59 @@ async fn verify_election(
         )
             .into_response(),
         _ => (StatusCode::NOT_FOUND, "Election not found").into_response(),
+    }
+}
+
+async fn start_election(
+    Path(election_id): Path<Uuid>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let result = sqlx::query!(
+        "UPDATE elections SET status = 'OPEN' WHERE id = $1 AND status = 'DRAFT'",
+        election_id
+    )
+    .execute(&state.db)
+    .await;
+
+    match result {
+        Ok(res) => {
+            if res.rows_affected() > 0 {
+                StatusCode::OK.into_response()
+            } else {
+                (
+                    StatusCode::BAD_REQUEST,
+                    "Election not found or not in DRAFT state",
+                )
+                    .into_response()
+            }
+        }
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    }
+}
+
+async fn close_election(
+    Path(election_id): Path<Uuid>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let result = sqlx::query!(
+        "UPDATE elections SET status = 'SEALED' WHERE id = $1 AND status = 'OPEN'",
+        election_id
+    )
+    .execute(&state.db)
+    .await;
+
+    match result {
+        Ok(res) => {
+            if res.rows_affected() > 0 {
+                StatusCode::OK.into_response()
+            } else {
+                (
+                    StatusCode::BAD_REQUEST,
+                    "Election not found or not in OPEN state",
+                )
+                    .into_response()
+            }
+        }
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     }
 }

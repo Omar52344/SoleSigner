@@ -16,6 +16,11 @@ export default function CreateElectionPage() {
     const { t } = useLanguage()
 
     const [title, setTitle] = useState("")
+    const [startDate, setStartDate] = useState("")
+    const [endDate, setEndDate] = useState("")
+    const [closingType, setClosingType] = useState<"MANUAL" | "AUTO">("MANUAL")
+    const [accessType, setAccessType] = useState<"PUBLIC" | "PRIVATE">("PUBLIC")
+
     // Simple textual questions for MVP
     const [questions, setQuestions] = useState([{ id: "q1", text: "Question 1", type: "radio", options: "Yes,No" }])
 
@@ -31,7 +36,7 @@ export default function CreateElectionPage() {
         },
         onSuccess: (data) => {
             toast({ title: "Election Created", description: `ID: ${data.id}` })
-            router.push(`/vote/${data.id}`) // Redirect to test it
+            router.push(`/admin/elections`) // Go to admin list instead of vote page for now
         }
     })
 
@@ -42,24 +47,111 @@ export default function CreateElectionPage() {
             options: q.options.split(",").map(s => s.trim())
         }))
 
+        // Verify dates
+        const start = startDate ? new Date(startDate) : new Date()
+        const end = endDate ? new Date(endDate) : new Date(Date.now() + 86400000)
+
         const payload = {
             title,
-            form_config: { questions: formattedQuestions },
-            start_date: new Date().toISOString(),
-            end_date: new Date(Date.now() + 86400000).toISOString(), // +1 day
-            access_type: "PUBLIC"
+            form_config: {
+                questions: formattedQuestions,
+                closing_type: closingType,
+                // We could store timezone here if needed
+            },
+            start_date: start.toISOString(),
+            end_date: end.toISOString(),
+            access_type: accessType
         }
         createMutation.mutate(payload)
     }
 
     return (
         <div className="container mx-auto max-w-2xl py-10 space-y-8">
-            <h1 className="text-3xl font-bold">Create New Election</h1>
+            <h1 className="text-3xl font-bold">{t("create.title")}</h1>
 
             <div className="space-y-4">
-                <label className="block text-sm font-medium">Election Title</label>
+                <label className="block text-sm font-medium">{t("create.electionTitle")}</label>
                 <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Board of Directors 2024" />
             </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t("create.dates")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">{t("create.startDate")}</label>
+                            <Input
+                                type="datetime-local"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">{t("create.endDate")}</label>
+                            <Input
+                                type="datetime-local"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">{t("create.closingType")}</label>
+                        <div className="flex gap-4">
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    id="manual"
+                                    name="closing"
+                                    checked={closingType === "MANUAL"}
+                                    onChange={() => setClosingType("MANUAL")}
+                                />
+                                <label htmlFor="manual">{t("create.manual")}</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    id="auto"
+                                    name="closing"
+                                    checked={closingType === "AUTO"}
+                                    onChange={() => setClosingType("AUTO")}
+                                />
+                                <label htmlFor="auto">{t("create.automatic")}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Access Type</label>
+                        <div className="flex gap-4">
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    id="public"
+                                    name="access"
+                                    checked={accessType === "PUBLIC"}
+                                    onChange={() => setAccessType("PUBLIC")}
+                                />
+                                <label htmlFor="public">Public</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    id="private"
+                                    name="access"
+                                    checked={accessType === "PRIVATE"}
+                                    onChange={() => setAccessType("PRIVATE")}
+                                />
+                                <label htmlFor="private">Private (Whitelist)</label>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
 
             <div className="space-y-4">
                 <h3 className="text-xl font-semibold">{t("create.questions")}</h3>

@@ -118,6 +118,21 @@ const translations: Translations = {
     "monitor.liveActivity": { en: "Live Activity", es: "Actividad en Vivo" },
     "monitor.backToElections": { en: "Back to Elections", es: "Volver a Elecciones" },
     "monitor.lastMinute": { en: "+0% from last minute", es: "+0% desde el último minuto" },
+    "monitor.startElection": { en: "Start Election", es: "Iniciar Elección" },
+    "monitor.closeElection": { en: "Close Election", es: "Cerrar Elección" },
+    "monitor.confirmStart": { en: "Are you sure you want to open this election?", es: "¿Seguro que desea abrir esta elección?" },
+    "monitor.confirmClose": { en: "Are you sure you want to close this election? This action is irreversible.", es: "¿Seguro que desea cerrar esta elección? Esta acción es irreversible." },
+    "monitor.copyLink": { en: "Copy Voting Link", es: "Copiar Enlace de Votación" },
+    "monitor.linkCopied": { en: "Link copied to clipboard!", es: "¡Enlace copiado al portapapeles!" },
+
+    // Create - Date & Type
+    "create.dates": { en: "Duration & Closing", es: "Duración y Cierre" },
+    "create.startDate": { en: "Start Date/Time", es: "Fecha/Hora Inicio" },
+    "create.endDate": { en: "End Date/Time", es: "Fecha/Hora Fin" },
+    "create.closingType": { en: "Closing Type", es: "Tipo de Cierre" },
+    "create.manual": { en: "Manual Close", es: "Cierre Manual" },
+    "create.automatic": { en: "Automatic Close", es: "Cierre Automático" },
+    "create.timezone": { en: "Timezone", es: "Zona Horaria" },
 
     // Whitelist
     "whitelist.manage": { en: "Manage Whitelist", es: "Gestionar Lista Blanca" },
