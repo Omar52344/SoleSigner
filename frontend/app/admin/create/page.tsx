@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { API_URL } from "@/lib/utils"
+import { useLanguage } from "@/components/language-provider"
 import { useToast } from "@/hooks/use-toast"
 
 export default function CreateElectionPage() {
     const router = useRouter()
     const { toast } = useToast()
+    const { t } = useLanguage()
 
     const [title, setTitle] = useState("")
     // Simple textual questions for MVP
@@ -60,11 +62,21 @@ export default function CreateElectionPage() {
             </div>
 
             <div className="space-y-4">
-                <h3 className="text-xl font-semibold">Questions</h3>
+                <h3 className="text-xl font-semibold">{t("create.questions")}</h3>
                 {questions.map((q, idx) => (
                     <Card key={idx}>
-                        <CardHeader>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-base">Question {idx + 1}</CardTitle>
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => {
+                                    const newQ = questions.filter((_, i) => i !== idx);
+                                    setQuestions(newQ);
+                                }}
+                            >
+                                {t("create.remove")}
+                            </Button>
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <Input
@@ -74,7 +86,7 @@ export default function CreateElectionPage() {
                                     newQ[idx].text = e.target.value;
                                     setQuestions(newQ);
                                 }}
-                                placeholder="Question text"
+                                placeholder={t("create.questionText")}
                             />
                             <Input
                                 value={q.options}
@@ -83,18 +95,18 @@ export default function CreateElectionPage() {
                                     newQ[idx].options = e.target.value;
                                     setQuestions(newQ);
                                 }}
-                                placeholder="Options (comma separated)"
+                                placeholder={t("create.options")}
                             />
                         </CardContent>
                     </Card>
                 ))}
                 <Button variant="outline" onClick={() => setQuestions([...questions, { id: `q${questions.length + 1}`, text: "", type: "radio", options: "" }])}>
-                    + Add Question
+                    {t("create.addQuestion")}
                 </Button>
             </div>
 
             <Button size="lg" className="w-full" onClick={handleSubmit} disabled={createMutation.isPending}>
-                {createMutation.isPending ? "Creating..." : "Launch Election"}
+                {createMutation.isPending ? t("create.creating") : t("create.launch")}
             </Button>
         </div>
     )

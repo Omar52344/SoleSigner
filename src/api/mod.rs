@@ -24,6 +24,7 @@ pub fn router(pool: PgPool) -> Router {
     let state = AppState { db: pool };
     Router::new()
         .route("/elections/create", post(create_election))
+        .route("/elections", get(list_elections))
         .route("/elections/:id", get(get_election)) // Added this
         .route("/vote/validate-identity", post(validate_identity))
         .route("/vote/submit", post(submit_vote))
@@ -274,5 +275,32 @@ async fn verify_election(
         )
             .into_response(),
         _ => (StatusCode::NOT_FOUND, "Election not found").into_response(),
+    }
+}
+
+async fn list_elections(State(state): State<AppState>) -> impl IntoResponse {
+    let result = sqlx::query!(
+        "SELECT id, title, start_date, end_date, status::text as status FROM elections ORDER BY start_date DESC"
+    )
+    .fetch_all(&state.db)
+    .await;
+
+    match result {
+        Ok(recs) => {
+            let list: Vec<_> = recs
+                .iter()
+                .map(|rec| {
+                    serde_json::json!({
+                        "id": rec.id,
+                        "title": rec.title,
+                        "start_date": rec.start_date,
+                        "end_date": rec.end_date,
+                        "status": rec.status,
+                    })
+                })
+                .collect();
+            (StatusCode::OK, Json(list)).into_response()
+        }
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     }
 }

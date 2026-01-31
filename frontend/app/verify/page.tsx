@@ -7,11 +7,13 @@ import { Input } from "@/components/ui/input"
 import { sha256 } from "js-sha256"
 import { fetcher } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
+import { useLanguage } from "@/components/language-provider"
 
 export default function VerifyPage() {
     const [receipt, setReceipt] = useState<any>(null)
     const [status, setStatus] = useState<"IDLE" | "VALID" | "INVALID" | "ERROR">("IDLE")
     const { toast } = useToast()
+    const { t } = useLanguage()
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -24,7 +26,7 @@ export default function VerifyPage() {
                 setReceipt(json)
                 setStatus("IDLE")
             } catch (err) {
-                toast({ title: "Invalid File", description: "Not a valid JSON receipt", variant: "destructive" })
+                toast({ title: t("verify.invalidFile"), description: t("verify.notValidJson"), variant: "destructive" })
             }
         }
         reader.readAsText(file)
@@ -77,8 +79,8 @@ export default function VerifyPage() {
 
             setStatus("VALID") // We successfully computed IT.
             toast({
-                title: "Root Computed",
-                description: `Merkle Root: ${currentHash.substring(0, 16)}... (Verify this against public board)`
+                title: t("verify.rootComputed"),
+                description: `${t("verify.merkleRoot")}: ${currentHash.substring(0, 16)}... ${t("verify.checkPublic")}`
             })
 
         } catch (e) {
@@ -89,31 +91,31 @@ export default function VerifyPage() {
 
     return (
         <div className="container mx-auto max-w-lg py-10">
-            <h1 className="text-3xl font-bold mb-6">Independent Audit</h1>
+            <h1 className="text-3xl font-bold mb-6">{t("verify.independent")}</h1>
             <Card>
                 <CardHeader>
-                    <CardTitle>Verify Your Vote</CardTitle>
-                    <CardDescription>Upload your receipt to cryptographically verify inclusion.</CardDescription>
+                    <CardTitle>{t("verify.title")}</CardTitle>
+                    <CardDescription>{t("verify.desc")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Input type="file" onChange={handleFileUpload} accept=".json" />
 
                     {receipt && (
                         <div className="bg-slate-50 p-4 rounded text-xs font-mono break-all">
-                            <p>Ballot Hash: {receipt.ballot_hash}</p>
-                            <p>Path Length: {receipt.merkle_path?.length || 0}</p>
+                            <p>{t("verify.ballotHash")}: {receipt.ballot_hash}</p>
+                            <p>{t("verify.pathLength")}: {receipt.merkle_path?.length || 0}</p>
                         </div>
                     )}
 
                     {status === "VALID" && (
                         <div className="p-4 bg-green-100 text-green-800 rounded">
-                            Computation Successful. Your vote is mathematically linked to the Merkle Root.
+                            {t("verify.success")}
                         </div>
                     )}
                 </CardContent>
                 <CardFooter>
                     <Button onClick={verify} disabled={!receipt} className="w-full">
-                        Run Verification Algorithm
+                        {t("verify.run")}
                     </Button>
                 </CardFooter>
             </Card>

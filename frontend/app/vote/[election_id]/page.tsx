@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { fetcher, API_URL } from "@/lib/utils"
+import { useLanguage } from "@/components/language-provider"
 
 // Types
 interface Question {
@@ -37,6 +38,7 @@ export default function VotePage({ params }: { params: { election_id: string } }
     const router = useRouter()
     const [step, setStep] = useState(1)
     const { toast } = useToast()
+    const { t } = useLanguage()
 
     // State
     const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null)
@@ -123,8 +125,8 @@ export default function VotePage({ params }: { params: { election_id: string } }
 
 
     // Steps Rendering
-    if (isLoading) return <div className="p-10 text-center">Loading Election...</div>
-    if (error || !election) return <div className="p-10 text-center text-red-500">Error loading election.</div>
+    if (isLoading) return <div className="p-10 text-center">{t("common.loading")}</div>
+    if (error || !election) return <div className="p-10 text-center text-red-500">{t("common.error")}</div>
 
     // Generate Receipt Download
     const downloadReceipt = () => {
@@ -142,10 +144,10 @@ export default function VotePage({ params }: { params: { election_id: string } }
             <div className="mb-6 space-y-2">
                 <h1 className="text-3xl font-bold">{election.title}</h1>
                 <div className="flex gap-2 text-sm text-muted-foreground">
-                    <span className={step >= 1 ? "text-primary font-bold" : ""}>1. Identity</span> &gt;
-                    <span className={step >= 2 ? "text-primary font-bold" : ""}>2. Biometrics</span> &gt;
-                    <span className={step >= 3 ? "text-primary font-bold" : ""}>3. Vote</span> &gt;
-                    <span className={step >= 4 ? "text-primary font-bold" : ""}>4. Done</span>
+                    <span className={step >= 1 ? "text-primary font-bold" : ""}>{t("vote.identity")}</span> &gt;
+                    <span className={step >= 2 ? "text-primary font-bold" : ""}>{t("vote.biometrics")}</span> &gt;
+                    <span className={step >= 3 ? "text-primary font-bold" : ""}>{t("vote.cast")}</span> &gt;
+                    <span className={step >= 4 ? "text-primary font-bold" : ""}>{t("vote.done")}</span>
                 </div>
             </div>
 
@@ -153,18 +155,18 @@ export default function VotePage({ params }: { params: { election_id: string } }
             {step === 1 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Verification</CardTitle>
-                        <CardDescription>We need your location and ID number to proceed.</CardDescription>
+                        <CardTitle>{t("vote.step1.title")}</CardTitle>
+                        <CardDescription>{t("vote.step1.desc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <Button onClick={handleGetLocation} variant="outline" className="w-full">
-                            {location ? "Location Acquired ✅" : "📍 Enable Location"}
+                            {location ? t("vote.step1.locationAcquired") : t("vote.step1.enableLocation")}
                         </Button>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Document Number</label>
+                            <label className="text-sm font-medium">{t("vote.step1.docLabel")}</label>
                             <Input
-                                placeholder="Enter ID Number manually for demo"
+                                placeholder={t("vote.step1.docPlaceholder")}
                                 value={docNumber}
                                 onChange={(e) => setDocNumber(e.target.value)}
                             />
@@ -179,7 +181,7 @@ export default function VotePage({ params }: { params: { election_id: string } }
                             disabled={!location || !docNumber}
                             onClick={() => setStep(2)}
                         >
-                            Next: Biometrics
+                            {t("vote.step1.next")}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -189,8 +191,8 @@ export default function VotePage({ params }: { params: { election_id: string } }
             {step === 2 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Face & ID Capture</CardTitle>
-                        <CardDescription>Look at the camera.</CardDescription>
+                        <CardTitle>{t("vote.step2.title")}</CardTitle>
+                        <CardDescription>{t("vote.step2.desc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4 flex flex-col items-center">
                         <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
@@ -204,15 +206,15 @@ export default function VotePage({ params }: { params: { election_id: string } }
 
                         <div className="grid grid-cols-2 gap-2 w-full">
                             <Button variant={selfie ? "default" : "secondary"} onClick={captureSelfie}>
-                                {selfie ? "Retake Selfie" : "Capture Selfie"}
+                                {selfie ? t("vote.step2.retakeSelfie") : t("vote.step2.captureSelfie")}
                             </Button>
                             <Button variant={docImage ? "default" : "secondary"} onClick={captureDoc}>
-                                {docImage ? "Retake ID" : "Capture ID"}
+                                {docImage ? t("vote.step2.retakeID") : t("vote.step2.captureID")}
                             </Button>
                         </div>
 
                         {selfie && docImage && (
-                            <div className="text-xs text-green-600 font-bold">Both images captured ready for processing.</div>
+                            <div className="text-xs text-green-600 font-bold">{t("vote.step2.bothCaptured")}</div>
                         )}
                     </CardContent>
                     <CardFooter>
@@ -227,7 +229,7 @@ export default function VotePage({ params }: { params: { election_id: string } }
                                 longitude: location?.lng || 0
                             })}
                         >
-                            {identityMutation.isPending ? "Verifying..." : "Verify Identity"}
+                            {identityMutation.isPending ? t("vote.step2.verifying") : t("vote.step2.verifyBtn")}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -237,7 +239,7 @@ export default function VotePage({ params }: { params: { election_id: string } }
             {step === 3 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Cast Your Vote</CardTitle>
+                        <CardTitle>{t("vote.step3.title")}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {election.form_config.questions?.map((q) => (
@@ -276,7 +278,7 @@ export default function VotePage({ params }: { params: { election_id: string } }
                                 })
                             }}
                         >
-                            {submitVoteMutation.isPending ? "Submitting..." : "Submit Vote Securely"}
+                            {submitVoteMutation.isPending ? t("vote.step3.submitting") : t("vote.step3.submitBtn")}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -286,24 +288,24 @@ export default function VotePage({ params }: { params: { election_id: string } }
             {step === 4 && receipt && (
                 <Card className="bg-green-50 border-green-200">
                     <CardHeader>
-                        <CardTitle className="text-green-800">Vote Recorded!</CardTitle>
-                        <CardDescription className="text-green-700">Your vote has been cryptographically secured.</CardDescription>
+                        <CardTitle className="text-green-800">{t("vote.step4.recorded")}</CardTitle>
+                        <CardDescription className="text-green-700">{t("vote.step4.secured")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="bg-white p-4 rounded border font-mono text-xs break-all">
-                            <p className="font-bold text-gray-500">Ballot Hash:</p>
+                            <p className="font-bold text-gray-500">{t("verify.ballotHash")}:</p>
                             {receipt.ballot_hash}
                         </div>
                         <div className="text-sm text-gray-600">
-                            Save this receipt. You can use it to audit your vote later without revealing your choices.
+                            {t("vote.step4.saveReceipt")}
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col gap-2">
                         <Button className="w-full" onClick={downloadReceipt}>
-                            Download Receipt (.json)
+                            {t("vote.step4.download")}
                         </Button>
                         <Button variant="outline" className="w-full" onClick={() => router.push('/')}>
-                            Return Home
+                            {t("vote.step4.return")}
                         </Button>
                     </CardFooter>
                 </Card>

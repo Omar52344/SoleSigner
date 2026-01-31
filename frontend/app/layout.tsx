@@ -11,6 +11,8 @@ export const metadata: Metadata = {
     description: "Auditable, Digital, Sovereign Voting System",
 };
 
+import { LanguageSelector } from "@/components/language-selector";
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -20,7 +22,8 @@ export default function RootLayout({
         <html lang="en">
             <body className={inter.className}>
                 <Providers>
-                    <main className="min-h-screen bg-background text-foreground">
+                    <main className="min-h-screen bg-background text-foreground relative">
+                        <LanguageSelector />
                         {children}
                     </main>
                     <Toaster />

@@ -6,27 +6,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useLanguage } from "@/components/language-provider"
 
 export default function Home() {
     const [electionId, setElectionId] = useState("")
     const router = useRouter()
+    const { t } = useLanguage()
 
     return (
         <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-slate-50 to-slate-200 dark:from-slate-950 dark:to-slate-900">
             <div className="w-full max-w-md space-y-8">
                 <div className="text-center space-y-2">
                     <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-primary">SoleSigner</h1>
-                    <p className="text-muted-foreground">Sovereign, Auditable, Digital Voting.</p>
+                    <p className="text-muted-foreground">{t("home.subtitle")}</p>
                 </div>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Enter Election</CardTitle>
-                        <CardDescription>Enter the UUID to participate.</CardDescription>
+                        <CardTitle>{t("home.enterElection")}</CardTitle>
+                        <CardDescription>{t("home.enteruuid")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <Input
-                            placeholder="e.g. 550e8400-e29b..."
+                            placeholder={t("home.placeholder")}
                             value={electionId}
                             onChange={(e) => setElectionId(e.target.value)}
                         />
@@ -35,17 +37,17 @@ export default function Home() {
                             onClick={() => router.push(`/vote/${electionId}`)}
                             disabled={!electionId}
                         >
-                            Go to Vote
+                            {t("home.goVote")}
                         </Button>
                     </CardContent>
                 </Card>
 
                 <div className="grid grid-cols-2 gap-4">
                     <Link href="/verify" className="w-full">
-                        <Button variant="outline" className="w-full">Audit Receipt</Button>
+                        <Button variant="outline" className="w-full">{t("home.audit")}</Button>
                     </Link>
                     <Link href="/admin/create" className="w-full">
-                        <Button variant="secondary" className="w-full">Admin Panel</Button>
+                        <Button variant="secondary" className="w-full">{t("home.admin")}</Button>
                     </Link>
                 </div>
             </div>
