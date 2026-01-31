@@ -16,6 +16,13 @@ const translations: Translations = {
     "nav.home": { en: "Home", es: "Inicio" },
     "nav.create": { en: "Create Election", es: "Crear Elección" },
     "nav.verify": { en: "Verify Receipt", es: "Verificar Recibo" },
+    "nav.admin_elections": { en: "Admin Dashboard", es: "Panel Admin" },
+
+    // Admin List
+    "admin.elections_list": { en: "Existing Elections", es: "Elecciones Existentes" },
+
+    // Monitor
+    "monitor.dashboard": { en: "Election Monitor", es: "Monitor de Elección" },
 
     // Create Election
     "create.title": { en: "Create New Election", es: "Crear Nueva Elección" },
@@ -95,6 +102,31 @@ const translations: Translations = {
     "common.locationError": { en: "Location Error", es: "Error de Ubicación" },
     "common.geoNotSupported": { en: "Geolocation not supported", es: "Geolocalización no soportada" },
     "common.loading": { en: "Loading...", es: "Cargando..." },
+    "common.back": { en: "Back", es: "Volver" },
+    "common.actions": { en: "Actions", es: "Acciones" },
+    "common.status": { en: "Status", es: "Estado" },
+    "common.startDate": { en: "Start Date", es: "Fecha Inicio" },
+    "common.noData": { en: "No data found", es: "No se encontraron datos" },
+
+    // Admin List
+    "admin.list.monitor": { en: "Monitor", es: "Monitor" },
+    "admin.list.whitelist": { en: "Whitelist", es: "Lista Blanca" },
+    "admin.list.empty": { en: "No elections found.", es: "No se encontraron elecciones." },
+
+    // Monitor
+    "monitor.totalVotes": { en: "Total Votes", es: "Total Votos" },
+    "monitor.liveActivity": { en: "Live Activity", es: "Actividad en Vivo" },
+    "monitor.backToElections": { en: "Back to Elections", es: "Volver a Elecciones" },
+    "monitor.lastMinute": { en: "+0% from last minute", es: "+0% desde el último minuto" },
+
+    // Whitelist
+    "whitelist.manage": { en: "Manage Whitelist", es: "Gestionar Lista Blanca" },
+    "whitelist.addVoter": { en: "Add Voter", es: "Agregar Votante" },
+    "whitelist.instruction": { en: "Enter Document ID to authorize (e.g. Passport Number). It will be hashed before sending.", es: "Ingrese el ID del documento para autorizar (ej. Pasaporte). Será hasheado antes de enviarse." },
+    "whitelist.placeholder": { en: "Document ID", es: "ID del Documento" },
+    "whitelist.add": { en: "Add", es: "Agregar" },
+    "whitelist.adding": { en: "Adding...", es: "Agregando..." },
+    "whitelist.hashes": { en: "Whitelisted Hashes", es: "Hashes Autorizados" },
 }
 
 interface LanguageContextType {
