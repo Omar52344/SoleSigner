@@ -134,6 +134,17 @@ const translations: Translations = {
     "create.automatic": { en: "Automatic Close", es: "Cierre Automático" },
     "create.timezone": { en: "Timezone", es: "Zona Horaria" },
 
+    // Home
+    "home.aboutTitle": { en: "How it Works", es: "Cómo Funciona" },
+    "home.step1": { en: "Identity Verification", es: "Verificación de Identidad" },
+    "home.step1Desc": { en: "We use biometric analysis to ensure one person, one vote, without storing your personal data.", es: "Usamos análisis biométrico para asegurar un voto por persona, sin guardar tus datos." },
+    "home.step2": { en: "Anonymous Voting", es: "Voto Anónimo" },
+    "home.step2Desc": { en: "Your vote is cryptographically decoupled from your identity using Zero-Knowledge proofs.", es: "Tu voto es desacoplado criptográficamente de tu identidad usando pruebas de Conocimiento Cero." },
+    "home.step3": { en: "Auditable Results", es: "Resultados Auditables" },
+    "home.step3Desc": { en: "Verify your vote was counted using our Merkle Tree receipt system.", es: "Verifica que tu voto fue contado usando nuestro sistema de recibos Merkle Tree." },
+    "home.adminLogin": { en: "Admin Login", es: "Acceso Admin" },
+    "home.register": { en: "Register Organization", es: "Registrar Organización" },
+
     // Whitelist
     "whitelist.manage": { en: "Manage Whitelist", es: "Gestionar Lista Blanca" },
     "whitelist.addVoter": { en: "Add Voter", es: "Agregar Votante" },

@@ -1,5 +1,5 @@
-use image::DynamicImage;
-use std::sync::Arc;
+// use image::DynamicImage;
+// use std::sync::Arc;
 // use ort::{Environment, Session, Value}; // Commented out to avoid compilation errors without actual models/setup, providing structure.
 
 pub struct IdentityEngine {
@@ -10,7 +10,7 @@ pub struct IdentityEngine {
 }
 
 impl IdentityEngine {
-    pub fn new() -> Self {
+    pub fn _new() -> Self {
         // Initialize ONNX environment and sessions here
         // let environment = Arc::new(Environment::builder().with_name("SoleSigner").build().unwrap());
         IdentityEngine {
@@ -19,7 +19,7 @@ impl IdentityEngine {
     }
 
     /// Validates identity by comparing selfie with document photo and checking liveness
-    pub async fn validate_identity(
+    pub async fn _validate_identity(
         &self,
         selfie_bytes: &[u8],
         doc_bytes: &[u8],
@@ -51,7 +51,7 @@ impl IdentityEngine {
 }
 
 // Helper to keep logic clean
-pub fn match_faces(embedding1: &[f32], embedding2: &[f32]) -> f32 {
+pub fn _match_faces(embedding1: &[f32], embedding2: &[f32]) -> f32 {
     let dot_product: f32 = embedding1.iter().zip(embedding2).map(|(a, b)| a * b).sum();
     let norm1: f32 = embedding1.iter().map(|x| x * x).sum::<f32>().sqrt();
     let norm2: f32 = embedding2.iter().map(|x| x * x).sum::<f32>().sqrt();

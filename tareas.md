@@ -1,7 +1,9 @@
-- [x] agregar al momento de crear la eleccion la fecha de inicio y fin
-- [x] si el cierre es automatico poder escoger la hora y en la fecha de fin se cierre automaticamente dependiendo el pais escogido
-- [x] agregar 2 tipos de cierre cierre manual y cierre automatico
-- [x] y agregar un boton de cerrar eleccion en el monitor de eleccines para cerrar manualmente la eleccion
-- [x] agregar un boton de iniciar eleccion en el monitor de eleccines para iniciar manualmente la eleccion
+- [x] pagina de inicio que describa que es solesigner y como funciona
+- [x] login para administradores requiere registro previo 
+- [x] pagina de elecciones para administradores requiere login
+- [x] separar las elecciones por el usuario creador en la pagina de elecciones
+- [x] pagina de monitor para administradores requiere login
+- [x] pagina de whitelist para administradores requiere login
+- [x] pagina de votacion para usuarios 
+- [x] pagina de resultados para usuarios 
 
-- [x] copiar link de eleccion para compartir facilmente y poder votar

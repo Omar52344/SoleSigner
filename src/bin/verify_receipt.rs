@@ -28,7 +28,7 @@ fn verify_merkle_proof(leaf: &str, proof: &[String], root: &str) -> bool {
     // For this script, we'll try both concatenations and see if one matches up.
 
     for sibling in proof {
-        let left_attempt = hash_data(&format!("{}{}", sibling, current_hash));
+        let _left_attempt = hash_data(&format!("{}{}", sibling, current_hash));
         let right_attempt = hash_data(&format!("{}{}", current_hash, sibling));
 
         // This is a heuristic; in reality we need the index/bitmask.
