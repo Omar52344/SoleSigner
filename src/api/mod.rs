@@ -462,9 +462,26 @@ async fn add_whitelist(
     State(state): State<AppState>,
     Json(payload): Json<AddWhitelistRequest>,
 ) -> impl IntoResponse {
+    // 1. Check election status
+    let election = match sqlx::query!(
+        "SELECT status::text as status FROM elections WHERE id = $1",
+        election_id
+    )
+    .fetch_optional(&state.db)
+    .await
+    {
+        Ok(Some(e)) => e,
+        Ok(None) => return (StatusCode::NOT_FOUND, "Election not found").into_response(),
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    };
+
+    if election.status.as_deref() == Some("SEALED") {
+        return (StatusCode::FORBIDDEN, "Election is closed").into_response();
+    }
+
     for hash in payload.document_hashes {
         let _ = sqlx::query!(
-            "INSERT INTO whitelist (election_id, document_id_hash) VALUES ($1, $2)",
+            "INSERT INTO whitelist (election_id, document_id_hash) VALUES ($1, $2) ON CONFLICT DO NOTHING",
             election_id,
             hash
         )

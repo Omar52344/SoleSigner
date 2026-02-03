@@ -124,6 +124,7 @@ const translations: Translations = {
     "monitor.confirmClose": { en: "Are you sure you want to close this election? This action is irreversible.", es: "¿Seguro que desea cerrar esta elección? Esta acción es irreversible." },
     "monitor.copyLink": { en: "Copy Voting Link", es: "Copiar Enlace de Votación" },
     "monitor.linkCopied": { en: "Link copied to clipboard!", es: "¡Enlace copiado al portapapeles!" },
+    "monitor.viewResults": { en: "View Public Results", es: "Ver Resultados Públicos" },
 
     // Create - Date & Type
     "create.dates": { en: "Duration & Closing", es: "Duración y Cierre" },

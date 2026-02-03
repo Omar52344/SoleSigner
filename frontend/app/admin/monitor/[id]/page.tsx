@@ -127,6 +127,15 @@ export default function MonitorPage() {
                         >
                             {t("monitor.copyLink")}
                         </Button>
+                        <Button
+                            variant="secondary"
+                            className="w-full"
+                            asChild
+                        >
+                            <Link href={`/results/${electionId}`} target="_blank">
+                                {t("monitor.viewResults")}
+                            </Link>
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
