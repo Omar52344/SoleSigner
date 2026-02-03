@@ -25,7 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <span>SoleSigner Admin</span>
                     <span className="text-xs font-normal text-muted-foreground">Logged in as {user}</span>
                 </div>
-                <Button variant="outline" size="sm" onClick={logout}>Logout</Button>
+                <Button variant="outline" size="sm" onClick={logout} className="mr-28">Logout</Button>
             </header>
             <main className="flex-1">
                 {children}
