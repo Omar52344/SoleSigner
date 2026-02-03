@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { API_URL } from "@/lib/utils"
+import { useAuth } from "@/components/auth-provider"
 import { useLanguage } from "@/components/language-provider"
 import { useToast } from "@/hooks/use-toast"
 
@@ -14,6 +15,7 @@ export default function CreateElectionPage() {
     const router = useRouter()
     const { toast } = useToast()
     const { t } = useLanguage()
+    const { token } = useAuth()
 
     const [title, setTitle] = useState("")
     const [startDate, setStartDate] = useState("")
@@ -28,7 +30,10 @@ export default function CreateElectionPage() {
         mutationFn: async (data: any) => {
             const res = await fetch(`${API_URL}/elections/create`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
                 body: JSON.stringify(data)
             })
             if (!res.ok) throw new Error(await res.text())

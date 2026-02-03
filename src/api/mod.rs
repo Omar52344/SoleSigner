@@ -67,6 +67,7 @@ pub fn router(pool: PgPool) -> Router {
             get(get_whitelist).post(add_whitelist),
         )
         .route("/vote/validate-identity", post(validate_identity))
+        .route("/vote/check-eligibility", post(check_eligibility))
         .route("/vote/submit", post(submit_vote))
         .route("/audit/:election_id/verify", get(verify_election))
         .with_state(state)
@@ -316,6 +317,13 @@ pub struct ValidateIdentityRequest {
     pub document_base64: String,
     pub latitude: f64,
     pub longitude: f64,
+    pub document_number: String,
+}
+
+#[derive(Deserialize)]
+pub struct CheckEligibilityRequest {
+    pub election_id: Uuid,
+    pub document_number: String,
 }
 
 #[derive(Serialize)]
@@ -325,6 +333,43 @@ pub struct ValidateIdentityResponse {
 }
 
 // --- Missing Handlers ---
+
+async fn check_eligibility(
+    State(state): State<AppState>,
+    Json(payload): Json<CheckEligibilityRequest>,
+) -> impl IntoResponse {
+    let election = match sqlx::query!(
+        "SELECT access_type::text as access_type FROM elections WHERE id = $1",
+        payload.election_id
+    )
+    .fetch_optional(&state.db)
+    .await
+    {
+        Ok(Some(e)) => e,
+        Ok(None) => return (StatusCode::NOT_FOUND, "Election not found").into_response(),
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    };
+
+    if election.access_type.as_deref() != Some("PRIVATE") {
+        return StatusCode::OK.into_response();
+    }
+
+    let doc_hash = crypto::hash_data(&payload.document_number);
+
+    let exists = sqlx::query!(
+        "SELECT id FROM whitelist WHERE election_id = $1 AND document_id_hash = $2",
+        payload.election_id,
+        doc_hash
+    )
+    .fetch_optional(&state.db)
+    .await;
+
+    match exists {
+        Ok(Some(_)) => StatusCode::OK.into_response(),
+        Ok(None) => (StatusCode::FORBIDDEN, "Not in whitelist").into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    }
+}
 
 async fn validate_identity(
     State(state): State<AppState>,
@@ -344,8 +389,7 @@ async fn validate_identity(
     };
 
     // 2. CHECK WHITELIST IF PRIVATE
-    let doc_id = "DOC123456";
-    let doc_hash = crypto::hash_data(doc_id);
+    let doc_hash = crypto::hash_data(&payload.document_number);
 
     if election.access_type.as_deref() == Some("PRIVATE") {
         let whitelisted = sqlx::query!(
@@ -370,7 +414,7 @@ async fn validate_identity(
     }
 
     // 3. Generate Nullifier
-    let nullifier = crypto::generate_nullifier(doc_id, &election.election_salt);
+    let nullifier = crypto::generate_nullifier(&payload.document_number, &election.election_salt);
 
     (
         StatusCode::OK,

@@ -31,6 +31,7 @@ interface Election {
     form_config: FormConfig
     election_salt: string
     status: string
+    access_type: "PUBLIC" | "PRIVATE"
 }
 
 export default function VotePage({ params }: { params: { election_id: string } }) {
@@ -57,6 +58,26 @@ export default function VotePage({ params }: { params: { election_id: string } }
     const { data: election, isLoading, error } = useQuery<Election>({
         queryKey: ['election', election_id],
         queryFn: () => fetcher(`/elections/${election_id}`)
+    })
+
+    // 1.5 Check Eligibility Mutation
+    const checkEligibilityMutation = useMutation({
+        mutationFn: async () => {
+            const res = await fetch(`${API_URL}/vote/check-eligibility`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ election_id, document_number: docNumber })
+            })
+            if (!res.ok) throw new Error(await res.text())
+            // if ok, it means eligible
+            return true
+        },
+        onSuccess: () => {
+            setStep(2)
+        },
+        onError: (err) => {
+            toast({ title: "Eligibility Check Failed", description: "Identity not recognized or not authorized.", variant: "destructive" })
+        }
     })
 
     // 2. Identity Mutation
@@ -178,10 +199,16 @@ export default function VotePage({ params }: { params: { election_id: string } }
                     <CardFooter>
                         <Button
                             className="w-full"
-                            disabled={!location || !docNumber}
-                            onClick={() => setStep(2)}
+                            disabled={!location || !docNumber || checkEligibilityMutation.isPending}
+                            onClick={() => {
+                                if (election.access_type === "PRIVATE") {
+                                    checkEligibilityMutation.mutate();
+                                } else {
+                                    setStep(2);
+                                }
+                            }}
                         >
-                            {t("vote.step1.next")}
+                            {checkEligibilityMutation.isPending ? "Checking..." : t("vote.step1.next")}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -226,7 +253,8 @@ export default function VotePage({ params }: { params: { election_id: string } }
                                 selfie_base64: selfie,
                                 document_base64: docImage,
                                 latitude: location?.lat || 0,
-                                longitude: location?.lng || 0
+                                longitude: location?.lng || 0,
+                                document_number: docNumber
                             })}
                         >
                             {identityMutation.isPending ? t("vote.step2.verifying") : t("vote.step2.verifyBtn")}
