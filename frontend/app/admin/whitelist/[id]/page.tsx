@@ -57,7 +57,15 @@ export default function WhitelistPage() {
         addMutation.mutate(hash)
     }
 
+    // Fetch Status
+    const { data: election } = useQuery<{ status: string }>({
+        queryKey: ['election', electionId],
+        queryFn: () => fetcher(`/elections/${electionId}`)
+    })
+
     if (isLoading) return <div className="p-10 text-center">{t("common.loading")}</div>
+
+    const isClosed = election?.status === 'SEALED';
 
     return (
         <div className="container mx-auto py-10 space-y-8 max-w-2xl">
@@ -78,9 +86,10 @@ export default function WhitelistPage() {
                         placeholder={t("whitelist.placeholder")}
                         value={newId}
                         onChange={(e) => setNewId(e.target.value)}
+                        disabled={isClosed}
                     />
-                    <Button onClick={handleAdd} disabled={!newId || addMutation.isPending}>
-                        {addMutation.isPending ? t("whitelist.adding") : t("whitelist.add")}
+                    <Button onClick={handleAdd} disabled={!newId || addMutation.isPending || isClosed}>
+                        {isClosed ? "Closed" : (addMutation.isPending ? t("whitelist.adding") : t("whitelist.add"))}
                     </Button>
                 </CardContent>
             </Card>

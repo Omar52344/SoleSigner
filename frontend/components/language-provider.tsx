@@ -153,6 +153,15 @@ const translations: Translations = {
     "whitelist.add": { en: "Add", es: "Agregar" },
     "whitelist.adding": { en: "Adding...", es: "Agregando..." },
     "whitelist.hashes": { en: "Whitelisted Hashes", es: "Hashes Autorizados" },
+
+    // Messages / Errors
+    "vote.closedTitle": { en: "Voting Closed", es: "La Votación está Cerrada" },
+    "vote.closedDesc": { en: "This election is no longer accepting new votes.", es: "Esta elección ya no acepta nuevos votos." },
+    "error.eligibilityFailed": { en: "Eligibility Check Failed", es: "Fallo al verificar elegibilidad" },
+    "error.identityNotAuthorized": { en: "Identity not recognized or not authorized.", es: "Identidad no reconocida o no autorizada." },
+    "error.verificationFailed": { en: "Verification Failed", es: "Verificación Fallida" },
+    "msg.identityVerified": { en: "Identity Verified", es: "Identidad Verificada" },
+    "msg.canVote": { en: "You may now vote.", es: "Ahora puede votar." },
 }
 
 interface LanguageContextType {

@@ -76,7 +76,7 @@ export default function VotePage({ params }: { params: { election_id: string } }
             setStep(2)
         },
         onError: (err) => {
-            toast({ title: "Eligibility Check Failed", description: "Identity not recognized or not authorized.", variant: "destructive" })
+            toast({ title: t("error.eligibilityFailed"), description: t("error.identityNotAuthorized"), variant: "destructive" })
         }
     })
 
@@ -94,10 +94,10 @@ export default function VotePage({ params }: { params: { election_id: string } }
         onSuccess: (data) => {
             setNullifier(data.nullifier)
             setStep(3) // Move to Ballot
-            toast({ title: "Identity Verified", description: "You may now vote." })
+            toast({ title: t("msg.identityVerified"), description: t("msg.canVote") })
         },
         onError: (err) => {
-            toast({ title: "Verification Failed", description: err.message, variant: "destructive" })
+            toast({ title: t("error.verificationFailed"), description: err.message, variant: "destructive" })
         }
     })
 
@@ -148,6 +148,22 @@ export default function VotePage({ params }: { params: { election_id: string } }
     // Steps Rendering
     if (isLoading) return <div className="p-10 text-center">{t("common.loading")}</div>
     if (error || !election) return <div className="p-10 text-center text-red-500">{t("common.error")}</div>
+
+    if (election.status !== 'OPEN') return (
+        <div className="container mx-auto max-w-lg p-10 text-center">
+            <Card className="border-yellow-400 bg-yellow-50">
+                <CardHeader>
+                    <CardTitle className="text-yellow-800">{t("vote.closedTitle")}</CardTitle>
+                    <CardDescription className="text-yellow-700">{t("vote.closedDesc")}</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                    <Button variant="outline" className="w-full" onClick={() => router.push('/')}>
+                        {t("vote.step4.return")}
+                    </Button>
+                </CardFooter>
+            </Card>
+        </div>
+    )
 
     // Generate Receipt Download
     const downloadReceipt = () => {
