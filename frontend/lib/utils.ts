@@ -16,10 +16,17 @@ export async function fetcher<T>(url: string, options?: RequestInit): Promise<T>
     } as HeadersInit;
 
     const res = await fetch(`${API_URL}${url}`, { ...options, headers });
+    const text = await res.text();
     if (!res.ok) {
-        throw new Error(await res.text() || "API Error");
+        let message = text;
+        try {
+            const json = JSON.parse(text);
+            if (json.error) {
+                message = json.error;
+            }
+        } catch {}
+        throw new Error(message || "API Error");
     }
     // Handle empty responses (like 200 OK with no body)
-    const text = await res.text();
     return text ? JSON.parse(text) : {} as T;
 }

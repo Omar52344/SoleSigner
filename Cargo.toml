@@ -17,14 +17,28 @@ ed25519-dalek = "2.0"
 hex = "0.4"
 tokio-cron-scheduler = "0.9" # or latest
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 dotenvy = "0.15"
 # onnxruntime = "0.0.14" # Note: ort is often preferred in modern rust, but adhering to user req if possible, or using ort if better suitable.
 # Using 'ort' as it is the maintained successor to onnxruntime-rs for better compatibility
 # ort = { version = "2.0.0-rc.11", features = ["load-dynamic"] } # hypothetical version, checking validity in mind, usually 1.x or 2.x
 # image = "0.24" # For image processing before ONNX
 base64 = "0.21"
-tower-http = { version = "0.5", features = ["cors"] }
+tower-http = { version = "0.5", features = ["cors", "trace"] }
 bcrypt = "0.18.0"
 jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
+validator = { version = "0.16", features = ["derive"] }
 axum-extra = { version = "0.9", features = ["typed-header"] }
+utoipa = { version = "3.3", features = ["axum_extras", "chrono", "uuid"] }
+reqwest = { version = "0.11", features = ["json"] }
+serde_yaml = "0.9"
+
+[dev-dependencies]
+sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "postgres", "uuid", "chrono", "json", "migrate"] }
+reqwest = { version = "0.11", features = ["json"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+solesigner = { path = "." }
+tower = "0.5"
+hyper = "1.9"
+hyper-util = "0.1.20"

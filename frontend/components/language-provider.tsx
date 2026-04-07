@@ -37,7 +37,7 @@ const translations: Translations = {
 
     // Vote
     "vote.identity": { en: "1. Identity", es: "1. Identidad" },
-    "vote.biometrics": { en: "2. Biometrics", es: "2. Biometría" },
+    "vote.biometrics": { en: "2. Verification", es: "2. Verificación" },
     "vote.cast": { en: "3. Vote", es: "3. Votar" },
     "vote.done": { en: "4. Done", es: "4. Listo" },
 
@@ -72,16 +72,17 @@ const translations: Translations = {
     "vote.step1.enableLocation": { en: "📍 Enable Location", es: "📍 Activar Ubicación" },
     "vote.step1.docLabel": { en: "Document Number", es: "Número de Documento" },
     "vote.step1.docPlaceholder": { en: "Enter ID Number manually for demo", es: "Ingrese número de ID manualmente (demo)" },
-    "vote.step1.next": { en: "Next: Biometrics", es: "Siguiente: Biometría" },
+    "vote.step1.next": { en: "Next: Verification", es: "Siguiente: Verificación" },
 
     // Step 2
-    "vote.step2.title": { en: "Face & ID Capture", es: "Captura de Rostro e ID" },
-    "vote.step2.desc": { en: "Look at the camera.", es: "Mire a la cámara." },
+    "vote.step2.title": { en: "Verification", es: "Verificación" },
+    "vote.step2.desc": { en: "Confirm your document number.", es: "Confirma tu número de documento." },
     "vote.step2.captureSelfie": { en: "Capture Selfie", es: "Capturar Selfie" },
     "vote.step2.retakeSelfie": { en: "Retake Selfie", es: "Retomar Selfie" },
     "vote.step2.captureID": { en: "Capture ID", es: "Capturar ID" },
     "vote.step2.retakeID": { en: "Retake ID", es: "Retomar ID" },
     "vote.step2.bothCaptured": { en: "Both images captured ready for processing.", es: "Ambas imágenes capturadas listas para procesar." },
+    "vote.step2.confirmDoc": { en: "Confirm your document number above. Click Verify Identity to proceed.", es: "Confirma tu número de documento arriba. Haz clic en Verificar Identidad para continuar." },
     "vote.step2.verifying": { en: "Verifying...", es: "Verificando..." },
     "vote.step2.verifyBtn": { en: "Verify Identity", es: "Verificar Identidad" },
 

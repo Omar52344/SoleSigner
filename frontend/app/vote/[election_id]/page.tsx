@@ -2,8 +2,8 @@
 
 import { useState, useRef, useCallback, useEffect } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
-import Webcam from "react-webcam"
-import { sha256 } from "js-sha256"
+
+
 import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -43,16 +43,11 @@ export default function VotePage({ params }: { params: { election_id: string } }
 
     // State
     const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null)
-    const [useManualId, setUseManualId] = useState(false) // Toggle for OCR vs Manual
     const [docNumber, setDocNumber] = useState("")
-    const [selfie, setSelfie] = useState<string | null>(null)
-    const [docImage, setDocImage] = useState<string | null>(null)
     const [nullifier, setNullifier] = useState<string | null>(null)
 
     const [answers, setAnswers] = useState<Record<string, any>>({})
     const [receipt, setReceipt] = useState<any>(null)
-
-    const webcamRef = useRef<Webcam>(null)
 
     // 1. Fetch Election Data
     const { data: election, isLoading, error } = useQuery<Election>({
@@ -133,16 +128,7 @@ export default function VotePage({ params }: { params: { election_id: string } }
         )
     }
 
-    // Handler: Capture Images
-    const captureSelfie = useCallback(() => {
-        const imageSrc = webcamRef.current?.getScreenshot()
-        if (imageSrc) setSelfie(imageSrc)
-    }, [webcamRef])
 
-    const captureDoc = useCallback(() => {
-        const imageSrc = webcamRef.current?.getScreenshot()
-        if (imageSrc) setDocImage(imageSrc)
-    }, [webcamRef])
 
 
     // Steps Rendering
@@ -230,46 +216,30 @@ export default function VotePage({ params }: { params: { election_id: string } }
                 </Card>
             )}
 
-            {/* STEP 2: BIOMETRICS */}
+            {/* STEP 2: VERIFICATION */}
             {step === 2 && (
                 <Card>
                     <CardHeader>
                         <CardTitle>{t("vote.step2.title")}</CardTitle>
                         <CardDescription>{t("vote.step2.desc")}</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4 flex flex-col items-center">
-                        <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
-                            <Webcam
-                                audio={false}
-                                ref={webcamRef}
-                                screenshotFormat="image/jpeg"
-                                className="w-full h-full object-cover"
-                            />
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">{t("vote.step1.docLabel")}</label>
+                            <div className="p-3 border rounded-md bg-gray-50">
+                                {docNumber}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                {t("vote.step2.confirmDoc")}
+                            </p>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-2 w-full">
-                            <Button variant={selfie ? "default" : "secondary"} onClick={captureSelfie}>
-                                {selfie ? t("vote.step2.retakeSelfie") : t("vote.step2.captureSelfie")}
-                            </Button>
-                            <Button variant={docImage ? "default" : "secondary"} onClick={captureDoc}>
-                                {docImage ? t("vote.step2.retakeID") : t("vote.step2.captureID")}
-                            </Button>
-                        </div>
-
-                        {selfie && docImage && (
-                            <div className="text-xs text-green-600 font-bold">{t("vote.step2.bothCaptured")}</div>
-                        )}
                     </CardContent>
                     <CardFooter>
                         <Button
                             className="w-full"
-                            disabled={!selfie || !docImage}
+                            disabled={identityMutation.isPending}
                             onClick={() => identityMutation.mutate({
                                 election_id,
-                                selfie_base64: selfie,
-                                document_base64: docImage,
-                                latitude: location?.lat || 0,
-                                longitude: location?.lng || 0,
                                 document_number: docNumber
                             })}
                         >

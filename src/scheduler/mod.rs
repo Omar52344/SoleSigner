@@ -2,6 +2,7 @@ use crate::crypto::MerkleTree;
 use sqlx::PgPool;
 use std::sync::Arc;
 use tokio_cron_scheduler::{Job, JobScheduler}; // Assuming exposed
+use tracing;
 
 pub async fn start_scheduler(pool: PgPool) {
     let sched = JobScheduler::new().await.unwrap();
@@ -70,6 +71,7 @@ async fn close_expired_elections(pool: Arc<PgPool>) {
             .execute(&*pool)
             .await;
 
+            tracing::info!(election_id = %election.id, root = %root, "ELECTION_SEALED: Election sealed");
             println!("Election {} sealed. Root: {}", election.title, root);
         }
     }

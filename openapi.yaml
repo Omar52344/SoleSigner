@@ -1,0 +1,602 @@
+openapi: 3.0.3
+info:
+  title: SoleSigner API
+  description: Minimalistic serverless voting system with cryptographic receipts
+  version: 0.1.0
+  contact:
+    name: SoleSigner Team
+    url: https://github.com/your-org/solesigner
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+tags:
+  - name: Authentication
+    description: Admin registration and login
+  - name: Elections
+    description: Election management
+  - name: Voting
+    description: Vote submission and identity validation
+  - name: Whitelist
+    description: Whitelist management for private elections
+  - name: Results
+    description: Election results and verification
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '201':
+          description: Admin registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+        '400':
+          description: Validation error
+        '409':
+          description: Username already exists
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login admin and obtain JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+
+  /elections:
+    post:
+      tags:
+        - Elections
+      summary: Create a new election
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateElectionRequest'
+      responses:
+        '201':
+          description: Election created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+
+    get:
+      tags:
+        - Elections
+      summary: List elections for the authenticated admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of elections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ElectionListItem'
+
+  /elections/{election_id}:
+    get:
+      tags:
+        - Elections
+      summary: Get election details
+      parameters:
+        - name: election_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Election details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ElectionDetails'
+        '404':
+          description: Election not found
+
+  /elections/{election_id}/start:
+    post:
+      tags:
+        - Elections
+      summary: Start an election (change status from DRAFT to OPEN)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: election_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Election started
+        '400':
+          description: Election not found or not in DRAFT state
+        '401':
+          description: Unauthorized
+
+  /elections/{election_id}/close:
+    post:
+      tags:
+        - Elections
+      summary: Close an election (change status from OPEN to SEALED)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: election_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Election closed
+        '400':
+          description: Election not found or not in OPEN state
+        '401':
+          description: Unauthorized
+
+  /elections/{election_id}/stats:
+    get:
+      tags:
+        - Elections
+      summary: Get election statistics (total votes, status)
+      parameters:
+        - name: election_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Election stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ElectionStats'
+
+  /vote/check-eligibility:
+    post:
+      tags:
+        - Voting
+      summary: Check if a document is eligible to vote in a private election
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckEligibilityRequest'
+      responses:
+        '200':
+          description: Eligible (no body)
+        '403':
+          description: Not in whitelist
+        '404':
+          description: Election not found
+
+  /vote/validate-identity:
+    post:
+      tags:
+        - Voting
+      summary: Validate voter identity and generate nullifier + JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateIdentityRequest'
+      responses:
+        '200':
+          description: Identity validated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateIdentityResponse'
+        '400':
+          description: Validation error
+        '403':
+          description: Not in whitelist (private election)
+        '404':
+          description: Election not found
+
+  /vote/submit:
+    post:
+      tags:
+        - Voting
+      summary: Submit a vote (requires identity token)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitVoteRequest'
+      responses:
+        '200':
+          description: Vote submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoteReceipt'
+        '400':
+          description: Validation error
+        '403':
+          description: Election not open or duplicate nullifier
+        '404':
+          description: Election not found
+
+  /vote/verify-receipt:
+    post:
+      tags:
+        - Voting
+      summary: Verify a vote receipt signature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyReceiptRequest'
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyReceiptResponse'
+
+  /whitelist/{election_id}:
+    post:
+      tags:
+        - Whitelist
+      summary: Add document hashes to election whitelist
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: election_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddWhitelistRequest'
+      responses:
+        '200':
+          description: Whitelist updated
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+
+  /results/{election_id}:
+    get:
+      tags:
+        - Results
+      summary: Get election results (tally of choices)
+      parameters:
+        - name: election_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Results tally
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+        '404':
+          description: Election not found
+
+  /verify/{election_id}:
+    get:
+      tags:
+        - Results
+      summary: Get election Merkle root for verification
+      parameters:
+        - name: election_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Merkle root
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  merkle_root:
+                    type: string
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+        password:
+          type: string
+          minLength: 6
+          maxLength: 100
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        username:
+          type: string
+
+    CreateElectionRequest:
+      type: object
+      required:
+        - title
+        - form_config
+        - start_date
+        - end_date
+        - access_type
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        form_config:
+          type: object
+          description: JSON configuration of the election form
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        access_type:
+          type: string
+          enum:
+            - PUBLIC
+            - PRIVATE
+
+    ElectionListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - DRAFT
+            - OPEN
+            - CLOSING
+            - SEALED
+
+    ElectionDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        form_config:
+          type: object
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - DRAFT
+            - OPEN
+            - CLOSING
+            - SEALED
+        access_type:
+          type: string
+          enum:
+            - PUBLIC
+            - PRIVATE
+        election_salt:
+          type: string
+
+    ElectionStats:
+      type: object
+      properties:
+        total_votes:
+          type: integer
+        status:
+          type: string
+          enum:
+            - DRAFT
+            - OPEN
+            - CLOSING
+            - SEALED
+
+    CheckEligibilityRequest:
+      type: object
+      required:
+        - election_id
+        - document_number
+      properties:
+        election_id:
+          type: string
+          format: uuid
+        document_number:
+          type: string
+          minLength: 3
+          maxLength: 50
+
+    ValidateIdentityRequest:
+      type: object
+      required:
+        - election_id
+        - document_number
+      properties:
+        election_id:
+          type: string
+          format: uuid
+        document_number:
+          type: string
+          minLength: 3
+          maxLength: 50
+
+    ValidateIdentityResponse:
+      type: object
+      properties:
+        identity_token:
+          type: string
+        nullifier:
+          type: string
+
+    SubmitVoteRequest:
+      type: object
+      required:
+        - election_id
+        - choices
+        - nullifier
+        - request_id
+      properties:
+        election_id:
+          type: string
+          format: uuid
+        choices:
+          type: object
+          additionalProperties: true
+        nullifier:
+          type: string
+        request_id:
+          type: string
+          format: uuid
+
+    VoteReceipt:
+      type: object
+      properties:
+        ballot_hash:
+          type: string
+        merkle_path:
+          type: array
+          items:
+            type: string
+        election_id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        public_key:
+          type: string
+        signed_data:
+          type: string
+        signature:
+          type: string
+
+    VerifyReceiptRequest:
+      type: object
+      required:
+        - signed_data
+        - public_key
+        - signature
+      properties:
+        signed_data:
+          type: string
+        public_key:
+          type: string
+        signature:
+          type: string
+
+    VerifyReceiptResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        message:
+          type: string
+
+    AddWhitelistRequest:
+      type: object
+      required:
+        - document_hashes
+      properties:
+        document_hashes:
+          type: array
+          items:
+            type: string
