@@ -19,32 +19,13 @@ impl IdentityEngine {
     }
 
     /// Validates identity by comparing selfie with document photo and checking liveness
+    /// NOTE: Biometric validation disabled for MVP - this stub remains for future expansion
     pub async fn _validate_identity(
         &self,
-        selfie_bytes: &[u8],
-        doc_bytes: &[u8],
+        _selfie_bytes: &[u8],
+        _doc_bytes: &[u8],
     ) -> Result<(bool, String), String> {
-        // 1. Decode images from bytes
-        let _selfie = image::load_from_memory(selfie_bytes).map_err(|e| e.to_string())?;
-        let _doc = image::load_from_memory(doc_bytes).map_err(|e| e.to_string())?;
-
-        // 2. Liveness Check (ONNX)
-        // Run selfie through liveness model
-        // let liveness_score = self.run_liveness(&selfie)?;
-        // if liveness_score < threshold { return Err("Liveness check failed".into()); }
-
-        // 3. Face Matching (ONNX)
-        // Run both through ArcFace/MobileFaceNet to get embeddings
-        // Compare cosine similarity
-        // if similarity < threshold { return Err("Face mismatch".into()); }
-
-        // 4. OCR (ONNX or Tesseract, but user asked for ONNX logic generally)
-        // Extract Doc ID
-        let extracted_doc_id = "12345678".to_string(); // Placeholder
-
-        // Privacy: Images are dropped here as they go out of scope.
-
-        Ok((true, extracted_doc_id))
+        Err("Biometric validation disabled in MVP. Use document number validation instead.".to_string())
     }
 
     // fn run_liveness(&self, image: &DynamicImage) -> Result<f32, String> { ... }
